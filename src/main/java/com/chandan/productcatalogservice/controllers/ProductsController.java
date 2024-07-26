@@ -13,6 +13,10 @@ public class ProductsController {
     @GetMapping("{id}")
     public Product getProductById(@PathVariable("id") Long id ){
         Product product = new Product();
+        product.setId(id);
+        product.setName("Apple Iphone 8");
+        product.setPrice(70000d);
+        product.setDescription("Apple Iphone 8, Very good product");
 
         return product;
     }
