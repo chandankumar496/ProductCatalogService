@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FakeStoreRatingDto {
-    private Long count;
-    private Double rate;
+public class UserDto {
+
+    private String email;
+
 }
