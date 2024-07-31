@@ -7,6 +7,7 @@ import com.chandan.productcatalogservice.models.Category;
 import com.chandan.productcatalogservice.models.Product;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -18,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Primary
+@Primary
 @Service
 public class ProductService implements IProductService {
 
@@ -26,10 +27,13 @@ public class ProductService implements IProductService {
 
     private FakeStoreApiClient fakeStoreApiClient;
 
-    public ProductService( RestTemplateBuilder restTemplateBuilder, FakeStoreApiClient fakeStoreApiClient ){
+    private RedisTemplate<String, Object> redisTemplate;
+
+    public ProductService( RestTemplateBuilder restTemplateBuilder, FakeStoreApiClient fakeStoreApiClient , RedisTemplate<String, Object> redisTemplate ){
 
         this.restTemplateBuilder = restTemplateBuilder;
         this.fakeStoreApiClient = fakeStoreApiClient;
+        this.redisTemplate = redisTemplate;
 
     }
     @Override
@@ -47,8 +51,18 @@ public class ProductService implements IProductService {
     @Override
     public Product getProduct(Long productId) {
 
-        FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.getProduct(productId);
 
+        FakeStoreProductDto fakeStoreProductDto = null;
+         fakeStoreProductDto = (FakeStoreProductDto) redisTemplate.opsForHash().get("PRODUCT", productId);
+         if (fakeStoreProductDto != null) {
+             System.out.println("Found product in Redis cache");
+             return getProduct(fakeStoreProductDto);
+         }
+
+         fakeStoreProductDto = fakeStoreApiClient.getProduct(productId);
+        System.out.println("Called fake store product");
+        redisTemplate.opsForHash().put("PRODUCT", productId, fakeStoreProductDto);
+        System.out.println("Saved product into redis successfully");
         return getProduct(fakeStoreProductDto);
     }
 
