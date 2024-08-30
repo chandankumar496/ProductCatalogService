@@ -49,19 +49,20 @@ public class ProductsController {
             headers.add("called by", "smart people");
             return new ResponseEntity<>(product, headers, HttpStatus.OK);
         }catch (Exception e){
-           return new ResponseEntity<>(headers,HttpStatus.BAD_REQUEST);
-            //throw e;
+           //return new ResponseEntity<>(headers,HttpStatus.BAD_REQUEST);
+            throw e;
         }
 
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Product> createProduct(@RequestBody ProductDto productDto){
+    public Product createProduct(@RequestBody ProductDto productDto){
           Product product = productService.createProduct(getProduct(productDto));
-          if(Objects.isNull(product)){
-              return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-          }
-          return new ResponseEntity<>(product, HttpStatus.CREATED);
+          //if(Objects.isNull(product)){
+            //  return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+          //}
+        return product;
+          //return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
     @PutMapping("{id}")
